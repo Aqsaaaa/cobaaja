@@ -99,16 +99,42 @@ class AdminController extends Controller
     public function reservasiUpdate(Request $request, $id)
     {
         $reservasi = Reservasi::findOrFail($id);
-        
+
         $request->validate([
             'status' => 'required|in:pending,confirmed,cancelled,completed',
         ]);
 
+        $oldStatus = $reservasi->status_reservasi_232112;
+        $newStatus = $request->status;
+
         $reservasi->update([
-            'status_reservasi_232112' => $request->status,
+            'status_reservasi_232112' => $newStatus,
         ]);
 
+        // Update payment status based on reservation status
+        $pembayaran = $reservasi->pembayaran;
+        if ($pembayaran) {
+            $paymentStatus = $this->getPaymentStatusFromReservationStatus($newStatus);
+            $pembayaran->update([
+                'status_pembayaran_232112' => $paymentStatus,
+                'tanggal_pembayaran_232112' => $newStatus === 'completed' ? now() : $pembayaran->tanggal_pembayaran_232112,
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Status reservasi berhasil diupdate');
+    }
+
+    private function getPaymentStatusFromReservationStatus($reservationStatus)
+    {
+        // Define mapping between reservation status and payment status
+        $statusMap = [
+            'pending' => 'pending',
+            'confirmed' => 'paid',      // When confirmed, payment is considered paid
+            'completed' => 'paid',      // When completed, payment is paid
+            'cancelled' => 'failed',    // When cancelled, payment is failed
+        ];
+
+        return $statusMap[$reservationStatus] ?? 'pending';
     }
 
     public function lapanganEdit($id)

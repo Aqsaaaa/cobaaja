@@ -68,6 +68,7 @@
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Harga</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Catatan</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Pembayaran</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -113,6 +114,41 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
                                     {{ $item->catatan_232112 ?: '-' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($item->pembayaran)
+                                        <div class="mb-2">
+                                            <span class="text-xs font-medium text-gray-600">Metode:</span>
+                                            <span class="text-sm font-medium">
+                                                {{ $item->pembayaran->metode_pembayaran_232112 == 'cash' ? 'Cash' : 'Online' }}
+                                            </span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="text-xs font-medium text-gray-600">Status:</span>
+                                            @if($item->pembayaran->status_pembayaran_232112 == 'pending')
+                                                <span class="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded">Pending</span>
+                                            @elseif($item->pembayaran->status_pembayaran_232112 == 'success')
+                                                <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded">Success</span>
+                                            @elseif($item->pembayaran->status_pembayaran_232112 == 'failed')
+                                                <span class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded">Failed</span>
+                                            @elseif($item->pembayaran->status_pembayaran_232112 == 'expired')
+                                                <span class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded">Expired</span>
+                                            @else
+                                                <span class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded">{{ ucfirst($item->pembayaran->status_pembayaran_232112) }}</span>
+                                            @endif
+                                        </div>
+                                        @if($item->pembayaran->metode_pembayaran_232112 == 'midtrans' && $item->pembayaran->status_pembayaran_232112 == 'pending' && $item->pembayaran->payment_url)
+                                            <a href="{{ $item->pembayaran->payment_url }}"
+                                               target="_blank"
+                                               class="mt-1 inline-block bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1 rounded transition">
+                                                Bayar Sekarang
+                                            </a>
+                                        @elseif($item->pembayaran->metode_pembayaran_232112 == 'cash')
+                                            <span class="text-xs text-gray-600">Bayar di lokasi</span>
+                                        @endif
+                                    @else
+                                        <span class="text-xs text-gray-500">-</span>
+                                    @endif
                                 </td>
                             </tr>
                             @empty

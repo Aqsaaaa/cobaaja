@@ -155,6 +155,34 @@
                             <p class="text-sm text-gray-600 mt-2">*Harga akan dikonfirmasi setelah booking</p>
                         </div>
 
+                        <!-- Metode Pembayaran -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Metode Pembayaran <span class="text-red-500">*</span>
+                            </label>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="radio" name="metode_pembayaran" value="cash" required
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-3 block text-sm font-medium text-gray-700">Cash (Bayar di Tempat)</span>
+                                </label>
+                                @if(function_exists('curl_init'))
+                                <label class="flex items-center">
+                                    <input type="radio" name="metode_pembayaran" value="midtrans" required
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-3 block text-sm font-medium text-gray-700">Pembayaran Online (Midtrans)</span>
+                                </label>
+                                @endif
+                            </div>
+                            @error('metode_pembayaran')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+
+                            @if(!function_exists('curl_init'))
+                            <p class="mt-2 text-sm text-yellow-600">Catatan: Pembayaran online tidak tersedia karena ekstensi cURL tidak ditemukan pada server.</p>
+                            @endif
+                        </div>
+
                         <!-- Submit Button -->
                         <button type="submit"
                             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition duration-200 shadow-lg hover:shadow-xl">
