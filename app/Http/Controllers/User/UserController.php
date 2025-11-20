@@ -354,6 +354,67 @@ class UserController extends Controller
         }
     }
 
+    public function showPaymentPage($id)
+    {
+        // Find reservation and payment record for the authenticated user
+        $reservasi = \App\Models\Reservasi::where('reservasi_id_232112', $id)
+            ->where('user_id_232112', auth()->id())
+            ->with('pembayaran', 'lapangan')
+            ->first();
+
+        if (!$reservasi) {
+            abort(404, 'Reservation not found');
+        }
+
+        $pembayaran = $reservasi->pembayaran;
+        if (!$pembayaran || $pembayaran->metode_pembayaran_232112 !== 'midtrans') {
+            abort(404, 'Payment method is not Midtrans or payment record not found');
+        }
+
+        // If payment is already completed, redirect to reservation list
+        if ($pembayaran->status_pembayaran_232112 !== 'pending') {
+            return redirect()->route('user.reservasi.index')->with('info', 'Payment is already processed');
+        }
+
+        // Recreate the Snap token for this payment
+        try {
+            // Initialize Midtrans
+            $midtrans = new \App\Services\MidtransService();
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $pembayaran->transaction_id_midtrans,
+                    'gross_amount' => $reservasi->total_harga_232112,
+                ],
+                'customer_details' => [
+                    'first_name' => auth()->user()->nama_232112,
+                    'email' => auth()->user()->email_232112,
+                    'phone' => auth()->user()->telepon_232112 ?? 'N/A',
+                ],
+                'item_details' => [
+                    [
+                        'id' => $reservasi->lapangan_id_232112,
+                        'price' => $reservasi->total_harga_232112,
+                        'quantity' => 1,
+                        'name' => 'Reservasi Lapangan ' . $reservasi->lapangan->nama_lapangan_232112,
+                    ]
+                ]
+            ];
+
+            $snapToken = $midtrans->createTransaction($params);
+
+            // Return the Snap view with the token to show payment popup
+            return view('user.reservasi.snap', [
+                'snapToken' => $snapToken,
+                'reservasi' => $reservasi
+            ]);
+        } catch (\Exception $e) {
+            // If Midtrans fails, return to reservation list with error
+            return redirect()->route('user.reservasi.index')
+                ->with('error', 'Unable to load payment page: ' . $e->getMessage());
+        }
+    }
+
     public function reservasiIndex()
     {
         $reservasi = Reservasi::where('user_id_232112', Auth::id())

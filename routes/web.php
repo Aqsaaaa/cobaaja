@@ -60,6 +60,7 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::post('/reservasi', [UserController::class, 'reservasiStore'])->name('reservasi.store');
     Route::post('/midtrans/webhook', [UserController::class, 'handleMidtransWebhook'])->name('midtrans.webhook');
     Route::post('/reservasi/{id}/confirm-payment', [UserController::class, 'confirmPayment'])->name('user.reservasi.confirm-payment');
+    Route::get('/reservasi/{id}/pay', [UserController::class, 'showPaymentPage'])->name('reservasi.pay');
 });
 
 // Redirect to appropriate dashboard

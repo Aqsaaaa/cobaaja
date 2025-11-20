@@ -127,6 +127,8 @@
                                             <span class="text-xs font-medium text-gray-600">Status:</span>
                                             @if($item->pembayaran->status_pembayaran_232112 == 'pending')
                                                 <span class="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded">Pending</span>
+                                            @elseif($item->pembayaran->status_pembayaran_232112 == 'paid')
+                                                <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded">Paid</span>
                                             @elseif($item->pembayaran->status_pembayaran_232112 == 'success')
                                                 <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded">Success</span>
                                             @elseif($item->pembayaran->status_pembayaran_232112 == 'failed')
@@ -137,14 +139,20 @@
                                                 <span class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded">{{ ucfirst($item->pembayaran->status_pembayaran_232112) }}</span>
                                             @endif
                                         </div>
-                                        @if($item->pembayaran->metode_pembayaran_232112 == 'midtrans' && $item->pembayaran->status_pembayaran_232112 == 'pending' && $item->pembayaran->payment_url)
-                                            <a href="{{ $item->pembayaran->payment_url }}"
-                                               target="_blank"
+                                        @if($item->pembayaran->metode_pembayaran_232112 == 'midtrans' && $item->pembayaran->status_pembayaran_232112 == 'pending')
+                                            <a href="{{ route('user.reservasi.pay', $item->reservasi_id_232112) }}"
                                                class="mt-1 inline-block bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1 rounded transition">
                                                 Bayar Sekarang
                                             </a>
                                         @elseif($item->pembayaran->metode_pembayaran_232112 == 'cash')
                                             <span class="text-xs text-gray-600">Bayar di lokasi</span>
+                                        @endif
+                                        @if($item->pembayaran->status_pembayaran_232112 == 'paid')
+                                            <span class="text-xs text-green-600">Sudah dibayar</span>
+                                        @elseif($item->pembayaran->status_pembayaran_232112 == 'failed')
+                                            <span class="text-xs text-red-600">Pembayaran gagal</span>
+                                        @elseif($item->pembayaran->status_pembayaran_232112 == 'expired')
+                                            <span class="text-xs text-red-600">Pembayaran kadaluarsa</span>
                                         @endif
                                     @else
                                         <span class="text-xs text-gray-500">-</span>
